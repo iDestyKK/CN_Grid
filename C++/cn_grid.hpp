@@ -77,3 +77,12 @@ class grid {
 #include "cn_grid.tpp"
 
 #endif
+
+/***************************************\
+    * ** ***    CHANGELOG    *** ** *
+\***************************************/
+
+/*
+    2016-06-23 (0.1.0)
+      - Started writing CN_Grid (C++ Version). Initial Release.
+*/
