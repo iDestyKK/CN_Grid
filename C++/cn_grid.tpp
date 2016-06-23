@@ -4,7 +4,7 @@
  * Version 0.1.0 (Last Updated 2016-06-23)
  * 
  * Description:
- *     Implements a custom "grid-like"  data type for C++ users.
+ *     Implements a custom "grid-like" data type for C++ users.
  *     Uses functions a user is already familiar with using in STL.
  *     Treated as a vector with two dimensions instead of one.
  *     The size of the vector is (m * n). Constant time lookups.
