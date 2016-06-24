@@ -40,6 +40,13 @@ void grid<T>::resizey(unsigned int i) {
 	resize();
 }
 
+template <typename T>
+void grid<T>::resize(unsigned int a, unsigned int b) {
+	xsize = a;
+	ysize = b;
+	resize();
+}
+
 //Get Functions
 template <typename T>
 unsigned int grid<T>::sizex() {
@@ -49,6 +56,11 @@ unsigned int grid<T>::sizex() {
 template <typename T>
 unsigned int grid<T>::sizey() {
 	return ysize;
+}
+
+template <typename T>
+unsigned int grid<T>::size() {
+	return (xsize * ysize);
 }
 
 template <typename T>

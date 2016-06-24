@@ -38,10 +38,12 @@ class grid {
 		//Resize Functions
 		void resizex(unsigned int);
 		void resizey(unsigned int);
+		void resize (unsigned int, unsigned int);
 
 		//Get Functions
 		unsigned int sizex();
 		unsigned int sizey();
+		unsigned int size ();
 		T& at(unsigned int, unsigned int);
 
 		//Set Functions
