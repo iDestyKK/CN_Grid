@@ -1,7 +1,7 @@
 /*
  * CN_Grid Library (C++ Version)
  * 
- * Version 0.1.0 (Last Updated 2016-06-23)
+ * Version 0.1.2 (Last Updated 2016-06-24)
  * 
  * Description:
  *     Implements a custom "grid-like" data type for C++ users.
@@ -45,6 +45,7 @@ class grid {
 		unsigned int sizey();
 		unsigned int size ();
 		T& at(unsigned int, unsigned int);
+		bool empty();
 
 		//Set Functions
 		void clear();
@@ -61,6 +62,50 @@ class grid {
 				//Operator Overloads
 				T& operator[](int);
 		};
+
+		class iterator {
+			//Here we go...
+			friend class grid;
+			public:
+				iterator() {};
+				~iterator();
+				iterator& operator= (const iterator&);
+				iterator& operator++(int);
+				iterator& operator--(int);
+				bool operator!=(const iterator&) const;
+				bool operator==(const iterator&) const;
+				T& operator*();
+			private:
+				T* ptr;
+		};
+
+		class reverse_iterator {
+			//Here we go... again
+			friend class grid;
+			public:
+				reverse_iterator() {};
+				~reverse_iterator();
+				reverse_iterator& operator= (const reverse_iterator&);
+				reverse_iterator& operator++(int);
+				reverse_iterator& operator--(int);
+				bool operator!=(const reverse_iterator&) const;
+				bool operator==(const reverse_iterator&) const;
+				T& operator*();
+			private:
+				T* ptr;
+		};
+
+		//TODO: Add Column iterator
+		//TODO: Add Row iterator
+
+		//Iteration Functions
+		grid::iterator& begin();
+		grid::iterator& end();
+		grid::reverse_iterator& rbegin();
+		grid::reverse_iterator& rend();
+
+		//TODO: Add functions for column iterators
+		//TODO: Add functions for row iterators
 		
 		//Operator Overloads
 		grid::__tmp_ct& operator[](int);
@@ -79,3 +124,16 @@ class grid {
 #include "cn_grid.tpp"
 
 #endif
+
+/***************************************\
+    * ** ***    CHANGELOG    *** ** *
+\***************************************/
+
+/*
+    2016-06-24 (0.1.2)
+      - Added Iterators and Reverse Iterators.
+      - Added extra functions such as "grid<T>::empty".
+      
+    2016-06-23 (0.1.0)
+      - Started writing CN_Grid.
+*/
