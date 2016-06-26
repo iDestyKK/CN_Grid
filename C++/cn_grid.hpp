@@ -1,7 +1,7 @@
 /*
  * CN_Grid Library (C++ Version)
  * 
- * Version 0.1.3 (Last Updated 2016-06-25)
+ * Version 0.1.4 (Last Updated 2016-06-26)
  * 
  * Description:
  *     Implements a custom "grid-like" data type for C++ users.
@@ -26,6 +26,7 @@
 #include <utility>
 
 //C Includes
+#include <cstdio>
 #include <cstring>
 
 using namespace std;
@@ -53,6 +54,10 @@ class grid {
 		unsigned int size ();
 		T& at(unsigned int, unsigned int);
 		bool empty();
+		T& front();
+		T& back();
+		vector<T>& get_vector();
+		T* data();
 
 		//Set Functions
 		void clear();
@@ -113,6 +118,10 @@ class grid {
 		grid::reverse_iterator rbegin();
 		grid::reverse_iterator rend();
 
+		//Memory Save/Read Functions
+		void memory_write(const char*);
+		void memory_read (const char*);
+
 		//TODO: Add functions for column iterators
 		//TODO: Add functions for row iterators
 		
@@ -126,7 +135,7 @@ class grid {
 		void resize();
 
 	protected:
-		vector<T> data;
+		vector<T> _data;
 		T& at_ext(grid::__tmp_ct*, unsigned int, unsigned int);
 };
 
@@ -143,6 +152,10 @@ class grid {
 \***************************************/
 
 /*
+    2016-06-26 (0.1.4)
+      - Added "front", "back", "get_vector", and "data"
+      - Added memory dumping and importing functions
+
     2016-06-25 (0.1.3)
       - Rewrote iterator sub-classes to not use "new".
       - Added new constructors for iterator sub-classes.

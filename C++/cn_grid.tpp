@@ -1,7 +1,7 @@
 /*
  * CN_Grid Library (C++ Version)
  * 
- * Version 0.1.3 (Last Updated 2016-06-25)
+ * Version 0.1.4 (Last Updated 2016-06-26)
  * 
  * Description:
  *     Implements a custom "grid-like" data type for C++ users.
@@ -30,7 +30,7 @@
 //Destructor
 template <typename T>
 grid<T>::~grid() {
-	data.clear();
+	_data.clear();
 }
 
 //Resize Functions
@@ -71,7 +71,7 @@ unsigned int grid<T>::size() {
 
 template <typename T>
 T& grid<T>::at(unsigned int a, unsigned int b) {
-	return data[(b * xsize) + a]; //Constant time lookup
+	return _data[(b * xsize) + a]; //Constant time lookup
 }
 
 template <typename T>
@@ -79,33 +79,113 @@ bool grid<T>::empty() {
 	return (xsize * ysize) == 0;
 }
 
+template <typename T>
+T& grid<T>::front() {
+	return _data[0];
+}
+
+template <typename T>
+T& grid<T>::back() {
+	return _data[_data.size() - 1];
+}
+
+template <typename T>
+vector<T>& grid<T>::get_vector() {
+	return _data;
+}
+
+template <typename T>
+T* grid<T>::data() {
+	return _data.data();
+}
+
 //Set Functions
 template <typename T>
 void grid<T>::clear() {
 	xsize = 0;
 	ysize = 0;
-	data.clear();
+	_data.clear();
 }
 
 //Iteration Functions
 template <typename T>
 typename grid<T>::iterator grid<T>::begin() {
-	return iterator(&data[0]);
+	return iterator(&_data[0]);
 }
 
 template <typename T>
 typename grid<T>::iterator grid<T>::end() {
-	return iterator(&data[data.size()]);
+	return iterator(&_data[_data.size()]);
 }
 
 template <typename T>
 typename grid<T>::reverse_iterator grid<T>::rbegin() {
-	return reverse_iterator(&data[data.size() - 1]);
+	return reverse_iterator(&_data[_data.size() - 1]);
 }
 
 template <typename T>
 typename grid<T>::reverse_iterator grid<T>::rend() {
-	return reverse_iterator(&data[-1]);
+	return reverse_iterator(&_data[-1]);
+}
+
+//Memory Save/Read Functions
+template <typename T>
+void grid<T>::memory_write(const char* fpath) {
+	//A method of dumping the grid to a file.
+	FILE* fp = fopen(fpath, "wb");
+	unsigned int __sz;
+	__sz = sizeof(T);
+
+	//File Header
+	fprintf(fp, "GRID");
+
+	//Size information
+	fwrite((unsigned int *) &__sz , sizeof(unsigned int), 1, fp);
+	fwrite((unsigned int *) &xsize, sizeof(unsigned int), 1, fp);
+	fwrite((unsigned int *) &ysize, sizeof(unsigned int), 1, fp);
+
+	//Memory Dump the entire grid
+	fwrite((char *) &_data[0], sizeof(T), xsize * ysize, fp);
+	fclose(fp);
+}
+
+template <typename T>
+void grid<T>::memory_read(const char* fpath) {
+	FILE* fp = fopen(fpath, "rb");
+	
+	//Header Check
+	char header[5];
+	header[4] = '\0';
+	fread(header, sizeof(char), 4, fp);
+	
+	if (strcmp(header, "GRID") != 0) {
+		//You are a failure
+		fprintf(stderr, "[WARNING] Grid loaded does not have matching header! Will still attempt to load.\n");
+	}
+
+	unsigned int __sz, __xs, __ys;
+	fread(&__sz, sizeof(unsigned int), 1, fp);
+	fread(&__xs, sizeof(unsigned int), 1, fp);
+	fread(&__ys, sizeof(unsigned int), 1, fp);
+
+	if (__sz != sizeof(T)) {
+		fprintf(stderr, "[ ERROR ] Grid file has data size %d (Required %d).\n", __sz, sizeof(T));
+		fclose(fp);
+		return;
+	}
+	
+	//Prepare the grid
+	_data.clear();
+	_data.resize(xsize * ysize);
+	xsize  = __xs;
+	ysize  = __ys;
+	oxsize = xsize;
+	oysize = ysize;
+	
+	//Read the file into memory, directly into the vector's data.
+	fread((char *) &_data[0], __sz, xsize * ysize, fp);
+
+	fclose(fp);
 }
 
 //Operator Overloads
@@ -127,11 +207,8 @@ T& grid<T>::__tmp_ct::operator[] (int b) {
 //Private Functions
 template <typename T>
 void grid<T>::resize() {
-	//TODO: Resize without messing up the data
-	//Lazy way out
-	//data.resize(xsize * ysize);
 	if (oysize == oxsize && oxsize == 0 && xsize > 0 && ysize > 0) {
-		data.resize(xsize * ysize);
+		_data.resize(xsize * ysize);
 		oxsize = xsize;
 		oysize = ysize;
 		return;
@@ -139,7 +216,7 @@ void grid<T>::resize() {
 	
 	//Vertical first. It's the easiest.
 	if (oysize != ysize)
-		data.resize(oxsize * ysize),
+		_data.resize(oxsize * ysize),
 		oysize = ysize;
 	
 	//Horizontal next. This is where it gets a little tricky.
@@ -153,10 +230,10 @@ void grid<T>::resize() {
 
 		if (xsize > oxsize) {
 			//If the size is going up, resize first.
-			data.resize(xsize * ysize);
+			_data.resize(xsize * ysize);
 
-			pos1 = (ullb)&data[0] + __sz * (xsize  * (ysize - 1));
-			pos2 = (ullb)&data[0] + __sz * (oxsize * (ysize - 1));
+			pos1 = (ullb)&_data[0] + __sz * (xsize  * (ysize - 1));
+			pos2 = (ullb)&_data[0] + __sz * (oxsize * (ysize - 1));
 			for (unsigned int i = 1; i < ysize; i++) {
 				memmove((char*)pos1, (char*)pos2, __sz * oxsize);
 				memset((char*)pos2, 0, (xsize - oxsize));
@@ -167,17 +244,18 @@ void grid<T>::resize() {
 		else
 		if (xsize < oxsize) {
 			//If the size is going down, slide data over first
-			pos1 = (ullb)&data[0] + __sz * xsize;
-			pos2 = (ullb)&data[0] + __sz * oxsize;
+			pos1 = (ullb)&_data[0] + __sz * xsize;
+			pos2 = (ullb)&_data[0] + __sz * oxsize;
 			for (unsigned int i = 1; i < ysize; i++) {
 				//Old-fashioned C code right here
-				memcpy((char*)pos1, (char*)pos2, __sz * xsize);
+				//Use 'memcpy' if you can guarantee it goes left-to-right (or if you are daring).
+				memmove((char*)pos1, (char*)pos2, __sz * xsize); 
 				pos1 += (__sz * xsize);
 				pos2 += (__sz * oxsize);
 			}
 			
 			//Resize last.
-			data.resize(xsize * ysize);
+			_data.resize(xsize * ysize);
 		}
 		oxsize = xsize;
 	}
@@ -188,7 +266,7 @@ template <typename T>
 T& grid<T>::at_ext(grid<T>::__tmp_ct* __t, unsigned int a, unsigned int b) {
 	//This function is a HACK to overload [][] operator.
 	delete __t; //Free memory
-	return data[(b * xsize) + a];
+	return _data[(b * xsize) + a];
 }
 
 //Iterator Subclass
