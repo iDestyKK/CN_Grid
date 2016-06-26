@@ -1,7 +1,7 @@
 /*
  * CN_Grid Library (C++ Version)
  * 
- * Version 0.1.2 (Last Updated 2016-06-24)
+ * Version 0.1.3 (Last Updated 2016-06-25)
  * 
  * Description:
  *     Implements a custom "grid-like" data type for C++ users.
@@ -26,6 +26,12 @@
 #define __CN_GRID_TPP__
 
 #include "cn_grid.hpp"
+
+//Destructor
+template <typename T>
+grid<T>::~grid() {
+	data.clear();
+}
 
 //Resize Functions
 template <typename T>
@@ -81,36 +87,25 @@ void grid<T>::clear() {
 	data.clear();
 }
 
+//Iteration Functions
 template <typename T>
-typename grid<T>::iterator& grid<T>::begin() {
-	grid<T>::iterator *__tmp = new grid<T>::iterator;
-	
-	__tmp->ptr = &data[0];
-	return *__tmp;
+typename grid<T>::iterator grid<T>::begin() {
+	return iterator(&data[0]);
 }
 
 template <typename T>
-typename grid<T>::iterator& grid<T>::end() {
-	grid<T>::iterator *__tmp = new grid<T>::iterator;
-	
-	__tmp->ptr = &data[data.size()];
-	return *__tmp;
+typename grid<T>::iterator grid<T>::end() {
+	return iterator(&data[data.size()]);
 }
 
 template <typename T>
-typename grid<T>::reverse_iterator& grid<T>::rbegin() {
-	grid<T>::reverse_iterator *__tmp = new grid<T>::reverse_iterator;
-	
-	__tmp->ptr = &data[data.size() - 1];
-	return *__tmp;
+typename grid<T>::reverse_iterator grid<T>::rbegin() {
+	return reverse_iterator(&data[data.size() - 1]);
 }
 
 template <typename T>
-typename grid<T>::reverse_iterator& grid<T>::rend() {
-	grid<T>::reverse_iterator *__tmp = new grid<T>::reverse_iterator;
-	
-	__tmp->ptr = &data[-1]; //Oh wow this should be good
-	return *__tmp;
+typename grid<T>::reverse_iterator grid<T>::rend() {
+	return reverse_iterator(&data[-1]);
 }
 
 //Operator Overloads
@@ -134,7 +129,58 @@ template <typename T>
 void grid<T>::resize() {
 	//TODO: Resize without messing up the data
 	//Lazy way out
-	data.resize(xsize * ysize);
+	//data.resize(xsize * ysize);
+	if (oysize == oxsize && oxsize == 0 && xsize > 0 && ysize > 0) {
+		data.resize(xsize * ysize);
+		oxsize = xsize;
+		oysize = ysize;
+		return;
+	}
+	
+	//Vertical first. It's the easiest.
+	if (oysize != ysize)
+		data.resize(oxsize * ysize),
+		oysize = ysize;
+	
+	//Horizontal next. This is where it gets a little tricky.
+	//We are going to abuse the fact that a vector's memory
+	//is contagious...
+	if (oxsize != xsize) {
+		typedef unsigned long long ullb;
+		ullb pos1, pos2;
+		unsigned int __sz;
+		__sz = sizeof(T);
+
+		if (xsize > oxsize) {
+			//If the size is going up, resize first.
+			data.resize(xsize * ysize);
+
+			pos1 = (ullb)&data[0] + __sz * (xsize  * (ysize - 1));
+			pos2 = (ullb)&data[0] + __sz * (oxsize * (ysize - 1));
+			for (unsigned int i = 1; i < ysize; i++) {
+				memmove((char*)pos1, (char*)pos2, __sz * oxsize);
+				memset((char*)pos2, 0, (xsize - oxsize));
+				pos1 -= (__sz * xsize);
+				pos2 -= (__sz * oxsize);
+			}
+		}
+		else
+		if (xsize < oxsize) {
+			//If the size is going down, slide data over first
+			pos1 = (ullb)&data[0] + __sz * xsize;
+			pos2 = (ullb)&data[0] + __sz * oxsize;
+			for (unsigned int i = 1; i < ysize; i++) {
+				//Old-fashioned C code right here
+				memcpy((char*)pos1, (char*)pos2, __sz * xsize);
+				pos1 += (__sz * xsize);
+				pos2 += (__sz * oxsize);
+			}
+			
+			//Resize last.
+			data.resize(xsize * ysize);
+		}
+		oxsize = xsize;
+	}
 }
 
 //Protected Funcions
@@ -146,6 +192,11 @@ T& grid<T>::at_ext(grid<T>::__tmp_ct* __t, unsigned int a, unsigned int b) {
 }
 
 //Iterator Subclass
+template <typename T>
+grid<T>::iterator::iterator(T* rhs) {
+	ptr = rhs;
+}
+
 template <typename T>
 grid<T>::iterator::~iterator() {
 	//delete this; //Suicide I say!
@@ -185,6 +236,11 @@ T& grid<T>::iterator::operator*() {
 }
 
 //Reverse Iterator Subclass
+template <typename T>
+grid<T>::reverse_iterator::reverse_iterator(T* rhs) {
+	ptr = rhs;
+}
+
 template <typename T>
 grid<T>::reverse_iterator::~reverse_iterator() {
 	//delete this; //Suicide I say!

@@ -1,7 +1,7 @@
 /*
  * CN_Grid Library (C++ Version)
  * 
- * Version 0.1.2 (Last Updated 2016-06-24)
+ * Version 0.1.3 (Last Updated 2016-06-25)
  * 
  * Description:
  *     Implements a custom "grid-like" data type for C++ users.
@@ -21,8 +21,12 @@
 #ifndef __CN_GRID_CPP__
 #define __CN_GRID_CPP__
 
+//C++ Includes
 #include <vector>
 #include <utility>
+
+//C Includes
+#include <cstring>
 
 using namespace std;
 
@@ -31,9 +35,12 @@ class grid {
 	public:
 		//Constructors/Initialization Lists
 		grid():
-			xsize(0), ysize(0) {};
+			xsize(0), ysize(0), oxsize(0), oysize(0) {};
 		grid(unsigned int a, unsigned int b):
-			xsize(a), ysize(b) { resize(); };
+			xsize(a), ysize(b), oxsize(0), oysize(0) { resize(); };
+
+		//Destructor
+		~grid();
 
 		//Resize Functions
 		void resizex(unsigned int);
@@ -68,6 +75,7 @@ class grid {
 			friend class grid;
 			public:
 				iterator() {};
+				iterator(T*);
 				~iterator();
 				iterator& operator= (const iterator&);
 				iterator& operator++(int);
@@ -84,6 +92,7 @@ class grid {
 			friend class grid;
 			public:
 				reverse_iterator() {};
+				reverse_iterator(T*);
 				~reverse_iterator();
 				reverse_iterator& operator= (const reverse_iterator&);
 				reverse_iterator& operator++(int);
@@ -99,10 +108,10 @@ class grid {
 		//TODO: Add Row iterator
 
 		//Iteration Functions
-		grid::iterator& begin();
-		grid::iterator& end();
-		grid::reverse_iterator& rbegin();
-		grid::reverse_iterator& rend();
+		grid::iterator begin();
+		grid::iterator end();
+		grid::reverse_iterator rbegin();
+		grid::reverse_iterator rend();
 
 		//TODO: Add functions for column iterators
 		//TODO: Add functions for row iterators
@@ -112,13 +121,17 @@ class grid {
 
 
 	private:
-		unsigned int xsize, ysize;
+		unsigned int xsize , ysize,
+					 oxsize, oysize;
 		void resize();
 
 	protected:
 		vector<T> data;
 		T& at_ext(grid::__tmp_ct*, unsigned int, unsigned int);
 };
+
+//And for the C users who prefer the "CN_" prefx
+#define CN_GRID grid
 
 //A little hack to make the compiler shut up
 #include "cn_grid.tpp"
@@ -130,6 +143,11 @@ class grid {
 \***************************************/
 
 /*
+    2016-06-25 (0.1.3)
+      - Rewrote iterator sub-classes to not use "new".
+      - Added new constructors for iterator sub-classes.
+	  - Added "resize(x, y)" using C functions to resize.
+	  
     2016-06-24 (0.1.2)
       - Added Iterators and Reverse Iterators.
       - Added extra functions such as "grid<T>::empty".
