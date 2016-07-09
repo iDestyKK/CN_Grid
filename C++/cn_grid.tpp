@@ -201,7 +201,7 @@ typename grid<T>::__tmp_ct& grid<T>::operator[] (int a) {
 template <typename T>
 T& grid<T>::__tmp_ct::operator[] (int b) {
 	//Surprisingly, this works
-	return ptr->at_ext(this, b, pos);
+	return ptr->at_ext(this, pos, b);
 }
 
 //Private Functions
