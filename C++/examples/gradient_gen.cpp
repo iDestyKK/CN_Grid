@@ -19,11 +19,11 @@ int main() {
 	for (uint a = 0; a < img.sizex(); a++) {
 		v = i;
 		for (uint b = 0; b < img.sizey(); b++) {
-			img[b][a] = v;
+			img[a][b] = v;
 			if ((a % 256 == 0 && a % 512 != 0 && a > 0) || (xdir && v == 0))
-				img[b][a] = 255 - v;
+				img[a][b] = 255 - v;
 			if ((a - 256) % 512 == 0 && (b - 256) % 512 == 0)
-				img[b][a] = 255 - img[b][a];
+				img[a][b] = 255 - img[a][b];
 
 			if (v % 256 == 0) xdir = !xdir;
 			if (xdir)
