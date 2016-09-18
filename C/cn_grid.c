@@ -168,6 +168,7 @@ void cn_grid_free(CN_GRID grid) {
 	other functions offered to you. Besides, usually double
 	underscores means "stay the hell away from this"...
 */
+
 void __cn_grid_resize_proc(CN_GRID grid) {
 	if (grid->data == NULL) {
 		//Easy case, nothing was set prior

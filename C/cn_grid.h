@@ -39,7 +39,7 @@ typedef struct cn_grid {
 	void**   data;
 	cng_uint elem_size,
 	         width, height,
-			 owid, ohei;
+	         owid, ohei;
 } *CN_GRID;
 
 typedef CN_GRID GRID; //For you C++ people... (Which is weird here...)
@@ -52,8 +52,8 @@ typedef CN_GRID GRID; //For you C++ people... (Which is weird here...)
 	it equal to this function.
 */
 
-CN_GRID  new_cn_grid (cng_uint);
-CN_GRID  new_cn_grid_size(cng_uint, cng_uint, cng_uint);
+CN_GRID  new_cn_grid          (cng_uint);
+CN_GRID  new_cn_grid_size     (cng_uint, cng_uint, cng_uint);
 
 //Resize
 /*
@@ -64,29 +64,29 @@ CN_GRID  new_cn_grid_size(cng_uint, cng_uint, cng_uint);
 	help it.
 */
 
-void cn_grid_resize_x(CN_GRID, cng_uint);
-void cn_grid_resize_y(CN_GRID, cng_uint);
-void cn_grid_resize  (CN_GRID, cng_uint, cng_uint);
+void     cn_grid_resize_x     (CN_GRID, cng_uint);
+void     cn_grid_resize_y     (CN_GRID, cng_uint);
+void     cn_grid_resize       (CN_GRID, cng_uint, cng_uint);
 
 //Get
-cng_uint cn_grid_size_x(CN_GRID);
-cng_uint cn_grid_size_y(CN_GRID);
-cng_uint cn_grid_size  (CN_GRID);
-void*    cn_grid_at    (CN_GRID, cng_uint, cng_uint);
+cng_uint cn_grid_size_x       (CN_GRID);
+cng_uint cn_grid_size_y       (CN_GRID);
+cng_uint cn_grid_size         (CN_GRID);
+void*    cn_grid_at           (CN_GRID, cng_uint, cng_uint);
 
 //Set
 
 //Modify
-void cn_grid_clear(CN_GRID);
-void cn_grid_swap (CN_GRID, cng_uint, cng_uint, cng_uint, cng_uint);
-void cn_grid_copy (CN_GRID, CN_GRID);
+void     cn_grid_clear        (CN_GRID);
+void     cn_grid_swap         (CN_GRID, cng_uint, cng_uint, cng_uint, cng_uint);
+void     cn_grid_copy         (CN_GRID, CN_GRID);
 
 //Iteration
 
 //Memory Save/Read Functions
 
 //Deinitialiser
-void cn_grid_free(CN_GRID);
+void     cn_grid_free         (CN_GRID);
 
 //Functions you shouldn't use if you are sane. ;)
 /*
@@ -95,7 +95,7 @@ void cn_grid_free(CN_GRID);
 	other functions offered to you. Besides, usually double
 	underscores means "stay the hell away from this"...
 */
-void __cn_grid_resize_proc(CN_GRID);
+void     __cn_grid_resize_proc(CN_GRID);
 
 //Macros
 #define cn_grid_init(type) \
