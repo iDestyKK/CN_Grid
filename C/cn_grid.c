@@ -206,12 +206,6 @@ void __cn_grid_resize_proc(CN_GRID grid) {
 			if (grid->height > grid->ohei) {
 				//Size is going up. Resize first.
 				grid->data = (void *) realloc(grid->data, grid->elem_size * grid->width * grid->height);
-				cng_uint a, b;
-				for (b = 0; b < grid->ohei; b++) {
-					for (a = 0; a < grid->owid; a++)
-						printf("0x%0x - %4d, ",  cn_grid_at(grid, a, b), cn_grid_get(grid, int, a, b));
-					printf("\n");
-				}
 
 				//Then "Slide" Data over.
 				pos1 = (char *) grid->data + (grid->elem_size * grid->width * (grid->ohei   - 1)) + (grid->elem_size * (grid->height - grid->ohei));
@@ -219,7 +213,6 @@ void __cn_grid_resize_proc(CN_GRID grid) {
 
 				for (; i < grid->height; i++) {
 					memmove(pos2, pos1, grid->elem_size * grid->ohei);
-					printf("memmove(0x%0x, 0x%0x, %d * %d);\n", pos2, pos1, grid->elem_size, grid->ohei);
 					memset (pos2 + (grid->elem_size * grid->ohei), 0, grid->elem_size * (grid->height - grid->ohei));
 					pos1 -= (grid->elem_size * grid->ohei);
 					pos2 -= (grid->elem_size * grid->height);
